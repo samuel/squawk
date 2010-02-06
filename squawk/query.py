@@ -128,25 +128,18 @@ class Aggregator(object):
                 c.update(row)
         yield dict((c.name, c.value()) for c in columns)
 
-# tokens =  ['select', [[['count', '1'], 'AS', 'N'], [['IP']]], 'from', ['FILE'], 'where', ['STATUS', '=', 200], 'group', 'by', [['IP']], 'order', 'by', [['N'], 'DESC'], 'limit', 10]
-# tokens.columns =
-#   ['count', '1'] AS N
-#   ['IP'] AS 
-# tokens.tables = ['FILE']
-# tokens.where = [['STATUS', '=', 200]]
-# tokens.groupby = [['IP']]
-#   ['IP']
-# tokens.orderby = [['N'], 'DESC']
-# tokens.limit = 10
-
 class Query(object):
     def __init__(self, sql):
         self.tokens = sql_parser.parseString(sql)
+        self.columns = []
         self._parts = []
         self._generate_parts()
 
     def _generate_parts(self):
         tokens = self.tokens
+
+        self.columns = [self._column_builder(c)().name for c in tokens.columns]
+
         if tokens.where:
             func = eval("lambda row:"+self._filter_builder(tokens.where))
             self._parts.append(partial(Filter, function=func))

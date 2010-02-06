@@ -1,0 +1,12 @@
+
+Multiple columns for GROUP BY
+Multiple columns for ORDER BY
+Arithmetic expressions
+Subqueries
+Lots more parsers
+Command line interface
+Documentation
+
+Probably won't implement:
+
+Joins

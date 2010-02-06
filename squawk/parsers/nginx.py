@@ -10,9 +10,6 @@ log_re = re.compile(
     r" (?P<bytes>[^\s]+)"
     r'\s+"(?P<referrer>[^"]*)"'
     r'\s+"(?P<user_agent>[^"]*)"'
-    r' "(?P<host>[^"]*)"'
-    r' "(?P<gzip_ratio>[^"]*)"'
-    r' "(?P<response_time>[^"]*)"'
     r".*$")
 
 class AccessLogParser(object):
