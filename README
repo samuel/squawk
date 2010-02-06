@@ -1,13 +1,39 @@
-query = Query("SELECT COUNT(1) AS n, remote_addr FROM file WHERE status = 200 AND remote_addr != '-' GROUP BY remote_addr ORDER BY n DESC LIMIT 10")
 
+Description
+===========
 
-filtered = Filter(parser, lambda row:row['status'] == 200)
-group_by = GroupBy(filtered, group_by="remote_addr", select=[
-    lambda:Column('remote_addr'),
-    lambda:SumAggregate('bytes', 'bandwidth')])
-    # lambda:CountAggregate(None, 'count(1)')])
-order_by = OrderBy(group_by, 'bandwidth', True)
-# order_by = OrderBy(group_by, 'count(1)', True)
-limit = Limit(order_by, 10)
-for row in limit:
-    print "%s\t%.3f" % (row['remote_addr'], row['bandwidth'] / (1024*1024*1024))
+Squawk is a library and command line tool for running SQL queries
+against a text file. (e.g. Apache logs).
+
+Status
+======
+
+Still in major development. API is guaranteed to change.
+
+Examples
+========
+
+SQL based query::
+
+    query = Query("SELECT COUNT(1) AS n, remote_addr FROM file WHERE status = 200 AND remote_addr != '-' GROUP BY remote_addr ORDER BY n DESC LIMIT 10")
+    source = AccessLogParser("access.log")
+    output_console(query, source)
+    
+    # or
+    
+    query = Query("SELECT COUNT(1) AS n, remote_addr FROM file WHERE status = 200 AND remote_addr != '-' GROUP BY remote_addr ORDER BY n DESC LIMIT 10")
+    source = AccessLogParser("access.log")
+    for row in query.execute(source):
+        print row
+
+Code generated query::
+
+    source = AccessLogParser("access.log")
+    filtered = Filter(source, lambda row:row['status'] == 200)
+    group_by = GroupBy(filtered, group_by="remote_addr", select=[
+        lambda:Column('remote_addr'),
+        lambda:CountAggregate(None, 'count(1)')])
+    order_by = OrderBy(group_by, 'count(1)', True)
+    limit = Limit(order_by, 10)
+    for row in limit:
+        print row
