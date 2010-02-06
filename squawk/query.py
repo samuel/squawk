@@ -107,6 +107,17 @@ class Filter(object):
             if self.function(row):
                 yield row
 
+# tokens =  ['select', [[['count', '1'], 'AS', 'N'], [['IP']]], 'from', ['FILE'], 'where', ['STATUS', '=', 200], 'group', 'by', [['IP']], 'order', 'by', [['N'], 'DESC'], 'limit', 10]
+# tokens.columns =
+#   ['count', '1'] AS N
+#   ['IP'] AS 
+# tokens.tables = ['FILE']
+# tokens.where = [['STATUS', '=', 200]]
+# tokens.groupby = [['IP']]
+#   ['IP']
+# tokens.orderby = [['N'], 'DESC']
+# tokens.limit = 10
+
 class Query(object):
     def __init__(self, sql):
         self.tokens = sql_parser.parseString(sql)
@@ -116,8 +127,8 @@ class Query(object):
     def _generate_parts(self):
         tokens = self.tokens
         if tokens.where:
-            # TODO
-            pass
+            func = eval("lambda row:"+self._filter_builder(tokens.where))
+            self._parts.append(partial(Filter, function=func))
         if tokens.groupby:
             self._parts.append(partial(GroupBy,
                     group_by = tokens.groupby[0][0],
@@ -127,6 +138,31 @@ class Query(object):
             self._parts.append(partial(OrderBy, order_by=order[0][0], descending=order[1]=='DESC'))
         if tokens.limit:
             self._parts.append(partial(Limit, limit=int(tokens.limit)))
+
+    def _filter_builder(self, where):
+        l = []
+        for expr in where:
+            if expr[0] == '(':
+                l.append("(")
+                l.append(self._filter_builder(expr[1:-1]))
+                l.append(")")
+            else:
+                if isinstance(expr, basestring):
+                    l.append(expr)
+                elif len(expr) == 3:
+                    op = {
+                        '<>': '!=',
+                        '!=': '!=',
+                        '=': '==',
+                        '<': '<',
+                        '>': '>',
+                        '<=': '<=',
+                        '>=': '>=',
+                    }[expr[1]]
+                    l.append('(row["%s"] %s %s)' % (expr[0].lower(), op, expr[2]))
+                else:
+                    raise Exception("Don't understand expression %s in where clause" % expr)
+        return " ".join(l)
 
     def _column_builder(self, col):
         if len(col.name) > 1:

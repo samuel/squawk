@@ -5,19 +5,8 @@ from __future__ import division
 from squawk.parsers.nginx import AccessLogParser
 from squawk.query import *
 
-# tokens =  ['select', [[['count', '1'], 'AS', 'N'], [['IP']]], 'from', ['FILE'], 'where', ['STATUS', '=', 200], 'group', 'by', [['IP']], 'order', 'by', [['N'], 'DESC'], 'limit', 10]
-# tokens.columns =
-#   ['count', '1'] AS N
-#   ['IP'] AS 
-# tokens.tables = ['FILE']
-# tokens.where = [['STATUS', '=', 200]]
-# tokens.groupby = [['IP']]
-#   ['IP']
-# tokens.orderby = [['N'], 'DESC']
-# tokens.limit = 10
-
 if __name__ == "__main__":
-    query = Query("SELECT COUNT(1) AS n, remote_addr FROM file WHERE status = 200 GROUP BY remote_addr ORDER BY n DESC LIMIT 10")
+    query = Query("SELECT COUNT(1) AS n, remote_addr FROM file WHERE status = 200 AND remote_addr != '-' GROUP BY remote_addr ORDER BY n DESC LIMIT 10")
     parser = AccessLogParser("access.log")
     for row in query.execute(parser):
         print "%s\t%d" % (row['remote_addr'], row['n'])
