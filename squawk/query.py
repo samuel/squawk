@@ -7,6 +7,16 @@ import logging
 from squawk.aggregates import aggregate_functions
 from squawk.sql import sql_parser
 
+OPERATOR_MAPPING = {
+    '<>': '!=',
+    '!=': '!=',
+    '=': '==',
+    '<': '<',
+    '>': '>',
+    '<=': '<=',
+    '>=': '>=',
+}
+
 class Column(object):
     def __init__(self, column, name=None):
         self.column = column.lower()
@@ -134,15 +144,7 @@ class Query(object):
                 if isinstance(expr, basestring):
                     l.append(expr)
                 elif len(expr) == 3:
-                    op = {
-                        '<>': '!=',
-                        '!=': '!=',
-                        '=': '==',
-                        '<': '<',
-                        '>': '>',
-                        '<=': '<=',
-                        '>=': '>=',
-                    }[expr[1]]
+                    op = OPERATOR_MAPPING[expr[1]]
                     l.append('(row["%s"] %s %s)' % (expr[0].lower(), op, expr[2]))
                 else:
                     raise Exception("Don't understand expression %s in where clause" % expr)
