@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 
+# This file is camelCase to match pyparsing
+
+__all__ = ["sql_parser"]
+
 from pyparsing import Literal, CaselessLiteral, Word, Upcase, delimitedList, Optional, \
     Combine, Group, alphas, nums, alphanums, ParseException, Forward, oneOf, quotedString, \
     ZeroOrMore, restOfLine, Keyword, upcaseTokens, Suppress
 
-selectToken = Keyword("select", caseless=True)
-fromToken   = Keyword("from", caseless=True)
-whereToken  = Keyword("where", caseless=True)
-groupByToken  = Keyword("group", caseless=True) + Keyword("by", caseless=True)
-orderByToken  = Keyword("order", caseless=True) + Keyword("by", caseless=True)
-limitToken  = Keyword("limit", caseless=True)
+selectToken  = Keyword("select", caseless=True)
+fromToken    = Keyword("from", caseless=True)
+whereToken   = Keyword("where", caseless=True)
+groupByToken = Keyword("group", caseless=True) + Keyword("by", caseless=True)
+orderByToken = Keyword("order", caseless=True) + Keyword("by", caseless=True)
+limitToken   = Keyword("limit", caseless=True)
 
 selectStmt  = Forward()
 
@@ -79,45 +83,7 @@ selectStmt << (
     Optional(orderByToken + orderByExpression.setResultsName("orderby"), "") +
     Optional(limitToken + limitExpression.setResultsName("limit"), ""))
 
-sqlParser = selectStmt
+sql_parser = selectStmt
 
-# define Oracle comment format, and ignore them
-oracleSqlComment = "--" + restOfLine
-sqlParser.ignore(oracleSqlComment)
-
-
-def test(str):
-    print str,"->"
-    try:
-        tokens = sqlParser.parseString(str)
-        print "tokens = ", tokens
-        print "tokens.columns ="
-        for col in tokens.columns:
-            print "\t", col.name, "AS", col.alias
-        print "tokens.tables =", tokens.tables
-        print "tokens.where =", tokens.where
-        print "tokens.groupby =", tokens.groupby
-        for col in tokens.groupby:
-            print "\t", col
-        print "tokens.orderby =", tokens.orderby
-        print "tokens.limit =", tokens.limit
-    except ParseException, err:
-        print " "*err.loc + "^\n" + err.msg
-        print err
-    print
-
-# test("SELECT * from XYZZY, ABC")
-# test("select * from SYS.XYZZY")
-# test("Select A from Sys.dual")
-# test("Select A,B,C from Sys.dual")
-# test("Select A, B, C from Sys.dual")
-# test("Select A, B, C from Sys.dual, Table2   ")
-# test("Xelect A, B, C from Sys.dual")
-# test("Select A, B, C frox Sys.dual")
-# test("Select")
-# test("Select &&& frox Sys.dual")
-# test("Select A from Sys.dual where a in ('RED','GREEN','BLUE')")
-# test("Select A from Sys.dual where a in ('RED','GREEN','BLUE') and b in (10,20,30)")
-# test("Select A,b from table1,table2 where table1.id eq table2.id -- test out comparison operators")
-
-test("SELECT COUNT(1) AS n, ip FROM file WHERE status = 200 GROUP BY ip ORDER BY n DESC LIMIT 10")
+sqlComment = "--" + restOfLine # ignore comments
+sql_parser.ignore(sqlComment)
