@@ -81,17 +81,17 @@ class OrderBy(object):
             yield r
 
 class GroupBy(object):
-    def __init__(self, source, group_by, select):
+    def __init__(self, source, group_by, columns):
         self.source = source
         self.group_by = group_by.lower()
-        self.select = select
+        self.columns = columns
 
     def __iter__(self):
         groups = {}
         for row in self.source:
             value = row[self.group_by]
             if value not in groups:
-                groups[value] = [x() for x in self.select]
+                groups[value] = [x() for x in self.columns]
             for s in groups[value]:
                 s.update(row)
         for key, row in groups.iteritems():
@@ -106,6 +106,27 @@ class Filter(object):
         for row in self.source:
             if self.function(row):
                 yield row
+
+class Selector(object):
+    def __init__(self, source, columns):
+        self.source = source
+        self.columns = [(n.lower(), (a or n).lower()) for n, a in columns]
+
+    def __iter__(self):
+        for row in self.source:
+            yield dict((alias, row[name]) for name, alias in self.columns)
+
+class Aggregator(object):
+    def __init__(self, source, columns):
+        self.source = source
+        self.columns = columns
+
+    def __iter__(self):
+        columns = [c() for c in self.columns]
+        for row in self.source:
+            for c in columns:
+                c.update(row)
+        yield dict((c.name, c.value()) for c in columns)
 
 # tokens =  ['select', [[['count', '1'], 'AS', 'N'], [['IP']]], 'from', ['FILE'], 'where', ['STATUS', '=', 200], 'group', 'by', [['IP']], 'order', 'by', [['N'], 'DESC'], 'limit', 10]
 # tokens.columns =
@@ -130,9 +151,17 @@ class Query(object):
             func = eval("lambda row:"+self._filter_builder(tokens.where))
             self._parts.append(partial(Filter, function=func))
         if tokens.groupby:
+            # Group by query
             self._parts.append(partial(GroupBy,
                     group_by = tokens.groupby[0][0],
-                    select = [self._column_builder(c) for c in tokens.columns]))
+                    columns = [self._column_builder(c) for c in tokens.columns]))
+        elif any(len(c.name)>1 for c in tokens.columns):
+            # Aggregate query
+            self._parts.append(partial(Aggregator,
+                columns = [self._column_builder(c) for c in tokens.columns]))
+        else:
+            # Basic select
+            self._parts.append(partial(Selector, columns=[(c.name[0], c.alias) for c in tokens.columns]))
         if tokens.orderby:
             order = tokens.orderby
             self._parts.append(partial(OrderBy, order_by=order[0][0], descending=order[1]=='DESC'))
