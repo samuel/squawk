@@ -3,47 +3,9 @@
 from __future__ import division
 from functools import partial
 import logging
+
+from squawk.aggregates import aggregate_functions
 from squawk.sql import sql_parser
-
-class CountAggregate(object):
-    def __init__(self, column, name=None):
-        self.column = column.lower()
-        self.name = (name or column).lower()
-        self.count = 0
-
-    def update(self, row):
-        self.count += 1
-
-    def value(self):
-        return self.count
-
-class AvgAggregate(object):
-    def __init__(self, column, name=None):
-        self.column = column.lower()
-        self.name = (name or column).lower()
-        self.sum = 0
-        self.count = 0
-
-    def update(self, row):
-        self.sum += row[self.column]
-        self.count += 1
-
-    def value(self):
-        if self.count == 0:
-            return None
-        return self.sum / self.count
-
-class SumAggregate(object):
-    def __init__(self, column, name=None):
-        self.column = column.lower()
-        self.name = (name or column).lower()
-        self.sum = 0
-
-    def update(self, row):
-        self.sum += row[self.column]
-
-    def value(self):
-        return self.sum
 
 class Column(object):
     def __init__(self, column, name=None):
@@ -189,12 +151,11 @@ class Query(object):
     def _column_builder(self, col):
         if len(col.name) > 1:
             # Aggregate
-            if col.name[0] == 'count':
-                return lambda:CountAggregate('count(%s)' % col.name[1], col.alias if col.alias else None)
-            elif col.name[0] == 'sum':
-                return lambda:SumAggregate(col.name[1], col.alias if col.alias else 'sum(%s)' % col.name[1])
-            else:
-                raise Exception("Unknown aggregate function %s" % col.name[0])
+            try:
+                aclass = aggregate_functions[col.name[0]]
+            except KeyError:
+                raise KeyError("Unknown aggregate function %s" % col.name[0])
+            return lambda:aclass(col.name[1], col.alias if col.alias else '%s(%s)' % (col.name[0], col.name[1]))
         else:
             # Column
             return lambda:Column(col.name[0], col.alias)
