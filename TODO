@@ -5,7 +5,7 @@ Arithmetic expressions
 Subqueries in WHERE
 Subqueries in column list
 Lots more parsers
-Command line interface
+Installable command
 Documentation
 
 Probably won't implement:
