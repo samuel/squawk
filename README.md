@@ -25,8 +25,9 @@ Supported SQL Features
 Departures from Standard SQL
 ============================
 
- * Table list in FROM uses spaces rathe than commands. This makes it easier
-   on the command line to specify files. (e.g. FROM access.log* )
+ * Table list in FROM uses a space rather than a comma as a separator.
+   This makes it easier on the command line to specify files.
+   (e.g. FROM access.log* )
 
 Supported Output Formats
 ========================
