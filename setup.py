@@ -4,10 +4,16 @@ from distutils.core import setup
 
 from squawk import __version__ as version
 
+try:
+    long_description = open("README.rst").read()
+except IOError:
+    long_description = ""
+
 setup(
     name = 'squawk',
     version = version,
     description = 'SQL query tool and library for static files',
+    long_description = long_description,
     author = 'Samuel Stauffer',
     author_email = 'samuel@descolada.com',
     url = 'http://github.com/samuel/squawk',
