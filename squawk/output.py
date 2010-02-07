@@ -36,3 +36,9 @@ def output_csv(columns, rows, fp=None, **kwargs):
     writer.writerow(columns)
     for row in rows:
         writer.writerow([row[k] for k in columns])
+
+output_formats = dict(
+    tabular = output_tabular,
+    json = output_json,
+    csv = output_csv,
+)
