@@ -30,6 +30,12 @@ Status
 
 Still in major development. API is guaranteed to change.
 
+Requirements
+============
+
+ * Python2.5 or later 2.x
+ * [pyparsing](http://pyparsing.wikispaces.com/)
+
 Supported SQL Features
 ======================
 
