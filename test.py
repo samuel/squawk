@@ -26,14 +26,8 @@ if __name__ == "__main__":
     # output_console(query.columns, query(parser))
 
     # query = Query("SELECT COUNT(1) AS n, remote_addr FROM file WHERE status IN (304, 200) AND remote_addr != '-' GROUP BY remote_addr ORDER BY n DESC LIMIT 10")
-    query = Query("SELECT COUNT(1) AS n, status FROM file WHERE status IN (304, 200) GROUP BY status ORDER BY n DESC LIMIT 10")
-    # query = Query("SELECT count(1) FROM file WHERE status = 200 AND remote_addr != '-' LIMIT 20")
-    # query = Query("SELECT count(1) FROM file")
+    # query = Query("SELECT COUNT(1) AS n, status FROM file WHERE status >= 300 AND status < 400 GROUP BY status ORDER BY n DESC LIMIT 10")
+    query = Query("SELECT COUNT(1) AS n, status FROM access.log GROUP BY status ORDER BY n")
+    # print query.tokens
     parser = AccessLogParser("access.log")
     output_console(query.columns, query(parser))
-    # parser = AccessLogParser("access.log")
-    # output_json(query.columns, query.execute(parser))
-    # for row in query.execute(parser):
-    #     print "%s\t%d" % (row['remote_addr'], row['n'])
-    # for row in query.execute(parser):
-    #     print row #"%s\t%d" % (row['remote_addr'], row['n'])

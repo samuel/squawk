@@ -5,7 +5,7 @@ __all__ = ["sql_parser"]
 
 from pyparsing import Literal, CaselessLiteral, Word, Upcase, delimitedList, Optional, \
     Combine, Group, alphas, nums, alphanums, ParseException, Forward, oneOf, quotedString, \
-    ZeroOrMore, restOfLine, Keyword, upcaseTokens, Suppress, stringEnd, Regex, NotAny
+    ZeroOrMore, restOfLine, Keyword, downcaseTokens, Suppress, stringEnd, Regex, NotAny
 
 selectToken  = Keyword("select", caseless=True)
 fromToken    = Keyword("from", caseless=True)
@@ -18,7 +18,7 @@ selectStmt  = Forward()
 
 ident          = Word(alphas, alphanums + "_$").setName("identifier")
 # ident          = Regex(r'"?(?!^from$|^where$)[A-Za-z][A-Za-z0-9_$]*"?').setName("identifier")
-columnName     = delimitedList(ident, ".", combine=True).setParseAction(upcaseTokens)
+columnName     = delimitedList(ident, ".", combine=True).setParseAction(downcaseTokens)
 
 aggregateFunction = (
     (CaselessLiteral("count") | CaselessLiteral("sum") |
@@ -30,10 +30,12 @@ aliasDef       = Optional(Optional(Suppress(CaselessLiteral("AS"))) +
                    columnName.setResultsName("alias"))
 
 filename       = Word(alphanums+"/._-$").setName("filename")
-tableName      = delimitedList(filename, ".", combine=True).setParseAction(upcaseTokens)
+tableName      = delimitedList(filename, ".", combine=True)
 subQuery       = Group(Suppress("(") + selectStmt + Suppress(")"))
 tableDef       = subQuery | tableName
-tableNameList  = Group(delimitedList(Group(tableDef + aliasDef)))
+
+# tableNameList  = Group(delimitedList(Group(tableDef + aliasDef))) # Standard SQL table list
+tableNameList  = Group(delimitedList(Group(tableDef), ' ')) # Not standard SQL table list. Allow spaces to separate tables. Easier to use on command line.
 
 whereExpression = Forward()
 and_ = Keyword("and", caseless=True)

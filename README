@@ -21,6 +21,12 @@ Supported SQL Features
  * Aliases for columns
  * Subqueries in FROM
 
+Departures from Standard SQL
+============================
+
+ * Table list in FROM uses spaces rathe than commands. This makes it easier
+   on the command line to specify files. (e.g. FROM access.log* )
+
 Supported Output Formats
 ========================
 
@@ -30,7 +36,11 @@ Supported Output Formats
 Examples
 ========
 
-SQL based query::
+SQL query on the command line::
+
+    python -m squawk.command "SELECT COUNT(1) AS n, status FROM" access.log "GROUP BY status ORDER BY n DESC"
+
+SQL based query through API::
 
     query = Query("SELECT COUNT(1) AS n, remote_addr FROM file WHERE status = 200 AND remote_addr != '-' GROUP BY remote_addr ORDER BY n DESC LIMIT 10")
     source = AccessLogParser("access.log")

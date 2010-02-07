@@ -1,8 +1,6 @@
-#!/usr/bin/env python
 
 from __future__ import division
 from functools import partial
-import logging
 
 from squawk.aggregates import aggregate_functions
 from squawk.sql import sql_parser
@@ -133,7 +131,7 @@ class Query(object):
             self._parts.append(partial(Selector, columns=[(c.name[0], c.alias) for c in tokens.columns]))
         if tokens.orderby:
             order = tokens.orderby
-            self._parts.append(partial(OrderBy, order_by=order[0][0], descending=order[1]=='DESC'))
+            self._parts.append(partial(OrderBy, order_by=order[0][0], descending=order[1]=='DESC' if len(order) > 1 else False))
         if tokens.limit:
             self._parts.append(partial(Limit, limit=int(tokens.limit)))
 
