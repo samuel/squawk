@@ -17,9 +17,10 @@ Supported SQL Features
  * Aggregates: count, min, max, avg, sum
  * GROUP BY (single column)
  * ORDER BY (single column)
- * LIMIT (no offset)
+ * LIMIT
+ * OFFSET
  * WHERE
- * Aliases for columns
+ * Column aliases
  * Subqueries in FROM
 
 Departures from Standard SQL

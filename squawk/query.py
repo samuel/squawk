@@ -27,15 +27,20 @@ class Column(object):
     def value(self):
         return self._value
 
-class Limit(object):
-    def __init__(self, source, limit):
+class LimitOffset(object):
+    def __init__(self, source, limit, offset=0):
         self.source = source
         self.limit = limit
+        self.offset = offset
 
     def __iter__(self):
         for i, row in enumerate(self.source):
+            if i < self.offset:
+                continue
+
             yield row
-            if i+1 >= self.limit:
+
+            if self.limit is not None and i+1 >= self.limit + self.offset:
                 return
 
 class OrderBy(object):
@@ -132,8 +137,10 @@ class Query(object):
         if tokens.orderby:
             order = tokens.orderby
             self._parts.append(partial(OrderBy, order_by=order[0][0], descending=order[1]=='DESC' if len(order) > 1 else False))
-        if tokens.limit:
-            self._parts.append(partial(Limit, limit=int(tokens.limit)))
+        if tokens.limit or tokens.offset:
+            self._parts.append(partial(LimitOffset,
+                limit = int(tokens.limit) if tokens.limit else None,
+                offset = int(tokens.offset) if tokens.offset else 0))
 
     def _filter_builder(self, where):
         l = []

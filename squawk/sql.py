@@ -13,6 +13,8 @@ whereToken   = Keyword("where", caseless=True)
 groupByToken = Keyword("group", caseless=True) + Keyword("by", caseless=True)
 orderByToken = Keyword("order", caseless=True) + Keyword("by", caseless=True)
 limitToken   = Keyword("limit", caseless=True)
+offsetToken  = Keyword("offset", caseless=True)
+keywords     = NotAny(selectToken | fromToken | whereToken | groupByToken | orderByToken | limitToken | offsetToken)
 
 selectStmt  = Forward()
 
@@ -26,7 +28,7 @@ aggregateFunction = (
     + Suppress("(") + (columnName | oneOf("1 *")) + Suppress(")"))
 columnDef      = Group(aggregateFunction | columnName).setResultsName("name")
 aliasDef       = Optional(Optional(Suppress(CaselessLiteral("AS"))) +
-                   NotAny(whereToken | fromToken | groupByToken | orderByToken | limitToken) +
+                   keywords +
                    columnName.setResultsName("alias"))
 
 filename       = Word(alphanums+"/._-$").setName("filename")
@@ -57,7 +59,6 @@ intNum = (Combine(Optional(arithSign) + Word(nums) +
     .setParseAction(lambda s,l,toks: int(toks[0])))
 
 # WHERE
-
 columnRval = realNum | intNum | quotedString | columnName # need to add support for alg expressions
 whereCondition = Group(
         (columnName + binop + columnRval) |
@@ -68,16 +69,16 @@ whereCondition = Group(
 whereExpression << whereCondition + ZeroOrMore((and_ | or_) + whereExpression) 
 
 # GROUP BY
-
 groupByExpression = Group(delimitedList(columnDef))
 
 # ORDER BY
-
 orderByExpression = Group(delimitedList(columnDef + Optional(CaselessLiteral("DESC") | CaselessLiteral("ASC"))))
 
 # LIMIT
-
 limitExpression = intNum
+
+# OFFSET
+offsetExpression = intNum
 
 # define the grammar
 selectColumnList = Group(delimitedList(Group(columnDef + aliasDef)))
@@ -88,7 +89,8 @@ selectStmt << (
     Optional(whereToken + whereExpression.setResultsName("where"), "") +
     Optional(groupByToken + groupByExpression.setResultsName("groupby"), "") +
     Optional(orderByToken + orderByExpression.setResultsName("orderby"), "") +
-    Optional(limitToken + limitExpression.setResultsName("limit"), ""))
+    Optional(limitToken + limitExpression.setResultsName("limit"), "") +
+    Optional(offsetToken + offsetExpression.setResultsName("offset"), ""))
 
 sql_parser = selectStmt # + stringEnd
 
