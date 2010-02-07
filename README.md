@@ -31,8 +31,9 @@ Departures from Standard SQL
 Supported Output Formats
 ========================
 
- * Basic tabular for console
+ * Basic tabular for console (like most database command line tools)
  * JSON
+ * CSV
 
 Examples
 ========
