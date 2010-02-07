@@ -15,7 +15,7 @@ combining various unix tools, but Squawk makes it ever easier to express
 more complex relationships. It is in no way a database or meant to be
 used as such. It's merely a reporting tool.
 
-Squawk can be used from the command line for ad-hoc queries, but it can
+Squawk can be used from the command line for ad-hoc queries, and it can
 also be used as a library as a part of a more in-depth reporting tool.
 
 Status
