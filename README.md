@@ -40,7 +40,7 @@ Supported SQL Features
 ======================
 
  * Aggregates: count, min, max, avg, sum
- * GROUP BY (single column)
+ * GROUP BY
  * ORDER BY (single column)
  * LIMIT
  * OFFSET

@@ -58,16 +58,16 @@ class OrderBy(object):
 class GroupBy(object):
     def __init__(self, source, group_by, columns):
         self.source = source
-        self.group_by = group_by.lower()
+        self.group_by = group_by
         self.columns = columns
 
     def __iter__(self):
         groups = {}
         for row in self.source:
-            value = row[self.group_by]
-            if value not in groups:
-                groups[value] = [x() for x in self.columns]
-            for s in groups[value]:
+            key = tuple(row[k] for k in self.group_by)
+            if key not in groups:
+                groups[key] = [x() for x in self.columns]
+            for s in groups[key]:
                 s.update(row)
         for key, row in groups.iteritems():
             yield dict((r.name, r.value()) for r in row)
@@ -126,7 +126,7 @@ class Query(object):
         if tokens.groupby:
             # Group by query
             parts.append(partial(GroupBy,
-                    group_by = tokens.groupby[0][0],
+                    group_by = [c[0] for c in tokens.groupby],
                     columns = [self._column_builder(c) for c in tokens.columns]))
         elif any(len(c.name)>1 for c in tokens.columns):
             # Aggregate query
