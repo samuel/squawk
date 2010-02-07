@@ -6,6 +6,18 @@ Squawk is a library and command line tool for running SQL queries
 against structured/semi-structured static files.
 (e.g. Apache logs, csv files, tcpdump output).
 
+Goal
+====
+
+The purpose is Squawk is to make querying for data in log files or other
+structured files easier. Everything that Squawk does can be done by
+combining various unix tools, but Squawk makes it ever easier to express
+more complex relationships. It is in no way a database or meant to be
+used as such. It's merely a reporting tool.
+
+Squawk can be used from the command line for ad-hoc queries, but it can
+also be used as a library as a part of a more in-depth reporting tool.
+
 Status
 ======
 
