@@ -107,12 +107,13 @@ class Query(object):
     def __init__(self, sql):
         self.tokens = sql_parser.parseString(sql) if isinstance(sql, basestring) else sql
         self.columns = []
-        self._parts = []
         self._table_subquery = None
-        self._generate_parts()
+        self._parts = self._generate_parts()
 
     def _generate_parts(self):
+        """Return a list of callables that can be composed to build a query generator"""
         tokens = self.tokens
+        parts = []
 
         self.columns = [self._column_builder(c)().name for c in tokens.columns]
 
@@ -121,28 +122,31 @@ class Query(object):
 
         if tokens.where:
             func = eval("lambda row:"+self._filter_builder(tokens.where))
-            self._parts.append(partial(Filter, function=func))
+            parts.append(partial(Filter, function=func))
         if tokens.groupby:
             # Group by query
-            self._parts.append(partial(GroupBy,
+            parts.append(partial(GroupBy,
                     group_by = tokens.groupby[0][0],
                     columns = [self._column_builder(c) for c in tokens.columns]))
         elif any(len(c.name)>1 for c in tokens.columns):
             # Aggregate query
-            self._parts.append(partial(Aggregator,
+            parts.append(partial(Aggregator,
                 columns = [self._column_builder(c) for c in tokens.columns]))
         else:
             # Basic select
-            self._parts.append(partial(Selector, columns=[(c.name[0], c.alias) for c in tokens.columns]))
+            parts.append(partial(Selector, columns=[(c.name[0], c.alias) for c in tokens.columns]))
         if tokens.orderby:
             order = tokens.orderby
-            self._parts.append(partial(OrderBy, order_by=order[0][0], descending=order[1]=='DESC' if len(order) > 1 else False))
+            parts.append(partial(OrderBy, order_by=order[0][0], descending=order[1]=='DESC' if len(order) > 1 else False))
         if tokens.limit or tokens.offset:
-            self._parts.append(partial(LimitOffset,
+            parts.append(partial(LimitOffset,
                 limit = int(tokens.limit) if tokens.limit else None,
                 offset = int(tokens.offset) if tokens.offset else 0))
 
+        return parts
+
     def _filter_builder(self, where):
+        """Return a Python expression from a tokenized 'where' filter"""
         l = []
         for expr in where:
             if expr[0] == '(':
@@ -162,6 +166,7 @@ class Query(object):
         return " ".join(l)
 
     def _column_builder(self, col):
+        """Return a callable that builds a column or aggregate object"""
         if len(col.name) > 1:
             # Aggregate
             try:
