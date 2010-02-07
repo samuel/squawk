@@ -6,6 +6,13 @@ Squawk is a library and command line tool for running SQL queries
 against structured/semi-structured static files.
 (e.g. Apache logs, csv files, tcpdump output).
 
+License
+=======
+
+BSD
+
+See LICENSE
+
 Goal
 ====
 
