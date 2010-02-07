@@ -150,6 +150,8 @@ class Query(object):
                 elif len(expr) == 3:
                     op = OPERATOR_MAPPING[expr[1]]
                     l.append('(row["%s"] %s %s)' % (expr[0].lower(), op, expr[2]))
+                elif expr[1] == "in":
+                    l.append('(row["%s"] in %r)' % (expr[0].lower(), expr[3:-1]))
                 else:
                     raise Exception("Don't understand expression %s in where clause" % expr)
         return " ".join(l)

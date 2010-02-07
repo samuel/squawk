@@ -25,7 +25,8 @@ if __name__ == "__main__":
     # parser = AccessLogParser("access.log")
     # output_console(query.columns, query(parser))
 
-    query = Query("SELECT COUNT(1) AS n, remote_addr FROM file WHERE status = 200 AND remote_addr != '-' GROUP BY remote_addr ORDER BY n DESC") #" LIMIT 10")
+    # query = Query("SELECT COUNT(1) AS n, remote_addr FROM file WHERE status IN (304, 200) AND remote_addr != '-' GROUP BY remote_addr ORDER BY n DESC LIMIT 10")
+    query = Query("SELECT COUNT(1) AS n, status FROM file WHERE status IN (304, 200) GROUP BY status ORDER BY n DESC LIMIT 10")
     # query = Query("SELECT count(1) FROM file WHERE status = 200 AND remote_addr != '-' LIMIT 20")
     # query = Query("SELECT count(1) FROM file")
     parser = AccessLogParser("access.log")
