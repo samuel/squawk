@@ -102,15 +102,19 @@ class Aggregator(object):
 
 class Query(object):
     def __init__(self, sql):
-        self.tokens = sql_parser.parseString(sql)
+        self.tokens = sql_parser.parseString(sql) if isinstance(sql, basestring) else sql
         self.columns = []
         self._parts = []
+        self._table_subquery = None
         self._generate_parts()
 
     def _generate_parts(self):
         tokens = self.tokens
 
         self.columns = [self._column_builder(c)().name for c in tokens.columns]
+
+        if not isinstance(tokens.tables[0][0], basestring):
+            self._table_subquery = Query(tokens.tables[0][0])
 
         if tokens.where:
             func = eval("lambda row:"+self._filter_builder(tokens.where))
@@ -162,8 +166,8 @@ class Query(object):
             # Column
             return lambda:Column(col.name[0], col.alias)
 
-    def execute(self, source, tables):
-        executor = source
+    def __call__(self, source):
+        executor = self._table_subquery(source) if self._table_subquery else source
         for p in self._parts:
-            executor = p(source=executor, tables=tables)
+            executor = p(source=executor)
         return executor

@@ -28,12 +28,11 @@ aggregateFunction = (
     + Suppress("(") + (columnName | oneOf("1 *")) + Suppress(")"))
 columnDef      = Group(aggregateFunction | columnName).setResultsName("name")
 aliasDef       = Optional(Optional(Suppress(CaselessLiteral("AS"))) + NotAny(whereToken | fromToken) + columnName.setResultsName("alias"))
-# aliasDef       = Optional(Suppress(CaselessLiteral("AS")) | columnName.setResultsName("alias")) | Optional(columnName.setResultsName("alias"))
 
 tableName      = delimitedList(ident, ".", combine=True).setParseAction(upcaseTokens)
-subQuery       = "(" + selectStmt + ")"
+subQuery       = Group(Suppress("(") + selectStmt + Suppress(")"))
 tableDef       = subQuery | tableName
-tableNameList  = Group(delimitedList(tableDef + aliasDef))
+tableNameList  = Group(delimitedList(Group(tableDef + aliasDef)))
 
 whereExpression = Forward()
 and_ = Keyword("and", caseless=True)

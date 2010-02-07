@@ -10,6 +10,23 @@ Status
 
 Still in major development. API is guaranteed to change.
 
+Supported SQL Features
+======================
+
+ * Aggregates: count, min, max, avg, sum
+ * GROUP BY (single column)
+ * ORDER BY (single column)
+ * LIMIT (no offset)
+ * WHERE
+ * Aliases for columns
+ * Subqueries in FROM
+
+Supported Output Formats
+========================
+
+ * Basic tabular for console
+ * JSON
+
 Examples
 ========
 
