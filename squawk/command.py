@@ -45,6 +45,8 @@ def main():
         fn = files[0]
         if fn.rsplit('/', 1)[-1] == 'access.log':
             parser = parsers['access_log']
+        elif fn.endswith('.csv'):
+            parser = parsers['csv']
         else:
             sys.stderr.write("Can't figure out parser for input")
             sys.exit(1)

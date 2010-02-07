@@ -55,8 +55,14 @@ Departures from Standard SQL
    This makes it easier on the command line to specify files.
    (e.g. FROM access.log* )
 
-Supported Output Formats
-========================
+Parsers
+=======
+
+ * Common access file formats (nginx, apache)
+ * CSV
+
+Output Formats
+==============
 
  * Basic tabular for console (like most database command line tools)
  * JSON
@@ -67,7 +73,7 @@ Examples
 
 SQL query on the command line::
 
-    $ squawk "SELECT COUNT(1) AS n, status FROM" access.log "GROUP BY status ORDER BY n DESC"
+    $ squawk "SELECT COUNT(1) AS n, status FROM access.log GROUP BY status ORDER BY n DESC"
     n	| status
     ----------------------------------------
     381353	| 200
