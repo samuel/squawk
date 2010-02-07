@@ -5,7 +5,7 @@ from distutils.core import setup
 from squawk import __version__ as version
 
 try:
-    long_description = open("README.rst").read()
+    long_description = open("README.md").read()
 except IOError:
     long_description = ""
 
