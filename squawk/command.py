@@ -4,7 +4,7 @@ from __future__ import with_statement
 import sys
 import optparse
 from squawk.query import Query
-from squawk.output import output_console, output_json
+from squawk.output import output_tabular, output_json, output_csv
 from squawk.parsers.nginx import AccessLogParser
 from squawk.sql import sql_parser
 

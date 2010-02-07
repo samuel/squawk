@@ -1,4 +1,5 @@
 
+import csv
 import sys
 try:
     import json
@@ -8,7 +9,7 @@ except ImportError:
     except ImportError:
         json = None
 
-def output_console(columns, rows, fp=None):
+def output_tabular(columns, rows, fp=None):
     fp = fp or sys.stdout
     fp.write("\t| ".join(columns))
     fp.write("\n")
@@ -28,3 +29,10 @@ def output_json(columns, rows, fp=None):
             first = False
         fp.write(json.dumps(row))
     fp.write(']')
+
+def output_csv(columns, rows, fp=None, **kwargs):
+    fp = fp or sys.stdout
+    writer = csv.writer(fp, **kwargs)
+    writer.writerow(columns)
+    for row in rows:
+        writer.writerow([row[k] for k in columns])
