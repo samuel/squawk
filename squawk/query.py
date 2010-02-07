@@ -162,8 +162,8 @@ class Query(object):
             # Column
             return lambda:Column(col.name[0], col.alias)
 
-    def execute(self, source):
+    def execute(self, source, tables):
         executor = source
         for p in self._parts:
-            executor = p(source=executor)
+            executor = p(source=executor, tables=tables)
         return executor

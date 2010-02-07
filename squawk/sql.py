@@ -6,7 +6,7 @@ __all__ = ["sql_parser"]
 
 from pyparsing import Literal, CaselessLiteral, Word, Upcase, delimitedList, Optional, \
     Combine, Group, alphas, nums, alphanums, ParseException, Forward, oneOf, quotedString, \
-    ZeroOrMore, restOfLine, Keyword, upcaseTokens, Suppress
+    ZeroOrMore, restOfLine, Keyword, upcaseTokens, Suppress, stringEnd, Regex, NotAny
 
 selectToken  = Keyword("select", caseless=True)
 fromToken    = Keyword("from", caseless=True)
@@ -18,17 +18,22 @@ limitToken   = Keyword("limit", caseless=True)
 selectStmt  = Forward()
 
 ident          = Word(alphas, alphanums + "_$").setName("identifier")
+# ident          = Regex(r'"?(?!^from$|^where$)[A-Za-z][A-Za-z0-9_$]*"?').setName("identifier")
 filename       = Word(alphanums+"/._-").setName("filename")
-columnName     = delimitedList(filename, ".", combine=True).setParseAction(upcaseTokens)
-tableName      = delimitedList(ident, ".", combine=True).setParseAction(upcaseTokens)
+columnName     = delimitedList(ident, ".", combine=True).setParseAction(upcaseTokens)
+
 aggregateFunction = (
     (CaselessLiteral("count") | CaselessLiteral("sum") |
      CaselessLiteral("min") | CaselessLiteral("max") | CaselessLiteral("avg"))
     + Suppress("(") + (columnName | oneOf("1 *")) + Suppress(")"))
 columnDef      = Group(aggregateFunction | columnName).setResultsName("name")
-aliasDef       = (Optional(CaselessLiteral("AS") + columnName.setResultsName("alias")) | Optional(columnName).setResultsName("alias"))
+aliasDef       = Optional(Optional(Suppress(CaselessLiteral("AS"))) + NotAny(whereToken | fromToken) + columnName.setResultsName("alias"))
+# aliasDef       = Optional(Suppress(CaselessLiteral("AS")) | columnName.setResultsName("alias")) | Optional(columnName.setResultsName("alias"))
 
-tableNameList  = Group(delimitedList(tableName))
+tableName      = delimitedList(ident, ".", combine=True).setParseAction(upcaseTokens)
+subQuery       = "(" + selectStmt + ")"
+tableDef       = subQuery | tableName
+tableNameList  = Group(delimitedList(tableDef + aliasDef))
 
 whereExpression = Forward()
 and_ = Keyword("and", caseless=True)
@@ -83,7 +88,7 @@ selectStmt << (
     Optional(orderByToken + orderByExpression.setResultsName("orderby"), "") +
     Optional(limitToken + limitExpression.setResultsName("limit"), ""))
 
-sql_parser = selectStmt
+sql_parser = selectStmt + stringEnd
 
 sqlComment = "--" + restOfLine # ignore comments
 sql_parser.ignore(sqlComment)
