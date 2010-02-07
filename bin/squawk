@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+
+from squawk.command import main
+
+main()

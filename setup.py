@@ -19,6 +19,7 @@ setup(
     url = 'http://github.com/samuel/squawk',
     packages = ['squawk'],
     license = "BSD",
+    scripts = ['bin/squawk'],
     classifiers = [
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
