@@ -67,7 +67,7 @@ Examples
 
 SQL query on the command line::
 
-    $ python -m squawk.command "SELECT COUNT(1) AS n, status FROM" access.log "GROUP BY status ORDER BY n DESC"
+    $ squawk "SELECT COUNT(1) AS n, status FROM" access.log "GROUP BY status ORDER BY n DESC"
     n	| status
     ----------------------------------------
     381353	| 200
