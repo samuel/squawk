@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 
 # This file is camelCase to match pyparsing
 
@@ -19,7 +18,6 @@ selectStmt  = Forward()
 
 ident          = Word(alphas, alphanums + "_$").setName("identifier")
 # ident          = Regex(r'"?(?!^from$|^where$)[A-Za-z][A-Za-z0-9_$]*"?').setName("identifier")
-filename       = Word(alphanums+"/._-").setName("filename")
 columnName     = delimitedList(ident, ".", combine=True).setParseAction(upcaseTokens)
 
 aggregateFunction = (
@@ -27,9 +25,12 @@ aggregateFunction = (
      CaselessLiteral("min") | CaselessLiteral("max") | CaselessLiteral("avg"))
     + Suppress("(") + (columnName | oneOf("1 *")) + Suppress(")"))
 columnDef      = Group(aggregateFunction | columnName).setResultsName("name")
-aliasDef       = Optional(Optional(Suppress(CaselessLiteral("AS"))) + NotAny(whereToken | fromToken) + columnName.setResultsName("alias"))
+aliasDef       = Optional(Optional(Suppress(CaselessLiteral("AS"))) +
+                   NotAny(whereToken | fromToken | groupByToken | orderByToken | limitToken) +
+                   columnName.setResultsName("alias"))
 
-tableName      = delimitedList(ident, ".", combine=True).setParseAction(upcaseTokens)
+filename       = Word(alphanums+"/._-$").setName("filename")
+tableName      = delimitedList(filename, ".", combine=True).setParseAction(upcaseTokens)
 subQuery       = Group(Suppress("(") + selectStmt + Suppress(")"))
 tableDef       = subQuery | tableName
 tableNameList  = Group(delimitedList(Group(tableDef + aliasDef)))
@@ -87,7 +88,7 @@ selectStmt << (
     Optional(orderByToken + orderByExpression.setResultsName("orderby"), "") +
     Optional(limitToken + limitExpression.setResultsName("limit"), ""))
 
-sql_parser = selectStmt + stringEnd
+sql_parser = selectStmt # + stringEnd
 
 sqlComment = "--" + restOfLine # ignore comments
 sql_parser.ignore(sqlComment)
