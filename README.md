@@ -54,7 +54,23 @@ Examples
 
 SQL query on the command line::
 
-    python -m squawk.command "SELECT COUNT(1) AS n, status FROM" access.log "GROUP BY status ORDER BY n DESC"
+    $ python -m squawk.command "SELECT COUNT(1) AS n, status FROM" access.log "GROUP BY status ORDER BY n DESC"
+    n	| status
+    ----------------------------------------
+    381353	| 200
+    180668	| 302
+    17976	| 404
+    12952	| 301
+    10836	| 304
+    735	| 403
+    420	| 206
+    376	| 416
+    123	| 400
+    46	| 500
+    5	| 502
+    3	| 408
+    3	| 405
+    1	| 504
 
 SQL based query through API::
 
