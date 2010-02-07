@@ -81,13 +81,27 @@ SQL query on the command line::
 
 SQL based query through API::
 
-    query = Query("SELECT COUNT(1) AS n, remote_addr FROM file WHERE status = 200 AND remote_addr != '-' GROUP BY remote_addr ORDER BY n DESC LIMIT 10")
+    query = Query(
+        "SELECT COUNT(1) AS n, remote_addr"
+        " FROM file"
+        " WHERE status = 200"
+        "  AND remote_addr != '-'"
+        " GROUP BY remote_addr"
+        " ORDER BY n DESC"
+        " LIMIT 10")
     source = AccessLogParser("access.log")
     output_console(query, source)
     
     # or
     
-    query = Query("SELECT COUNT(1) AS n, remote_addr FROM file WHERE status = 200 AND remote_addr != '-' GROUP BY remote_addr ORDER BY n DESC LIMIT 10")
+    query = Query(
+        "SELECT COUNT(1) AS n, remote_addr"
+        " FROM file"
+        " WHERE status = 200"
+        "  AND remote_addr != '-'"
+        " GROUP BY remote_addr"
+        " ORDER BY n DESC"
+        " LIMIT 10")
     source = AccessLogParser("access.log")
     for row in query.execute(source):
         print row
