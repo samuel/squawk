@@ -59,14 +59,14 @@ class GroupBy(object):
     def __init__(self, source, group_by, columns):
         self.source = source
         self.group_by = group_by
-        self.columns = columns
+        self._columns = columns
 
     def __iter__(self):
         groups = {}
         for row in self.source:
             key = tuple(row[k] for k in self.group_by)
             if key not in groups:
-                groups[key] = [x() for x in self.columns]
+                groups[key] = [x() for x in self._columns]
             for s in groups[key]:
                 s.update(row)
         for key, row in groups.iteritems():
@@ -85,23 +85,23 @@ class Filter(object):
 class Selector(object):
     def __init__(self, source, columns):
         self.source = source
-        self.columns = [(n.lower(), (a or n).lower()) for n, a in columns] if columns else None
+        self._columns = [(n.lower(), (a or n).lower()) for n, a in columns] if columns else None
 
     def __iter__(self):
-        if self.columns:
+        if self._columns:
             for row in self.source:
-                yield dict((alias, row[name]) for name, alias in self.columns)
+                yield dict((alias, row[name]) for name, alias in self._columns)
         else:
             for row in self.source:
                 yield row
 
 class Aggregator(object):
-    def __init__(self, source, columns):
+    def __init__(self, source, _columns):
         self.source = source
-        self.columns = columns
+        self._columns = columns
 
     def __iter__(self):
-        columns = [c() for c in self.columns]
+        columns = [c() for c in self._columns]
         for row in self.source:
             for c in columns:
                 c.update(row)
@@ -185,5 +185,5 @@ class Query(object):
         executor = self._table_subquery(source) if self._table_subquery else source
         for p in self._parts:
             executor = p(source=executor)
-        executor.column_names = [c().name for c in self.columns] if self.columns else source.columns
+        executor.columns = [c().name for c in self.columns] if self.columns else source.columns
         return executor
