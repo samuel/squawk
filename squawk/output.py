@@ -9,16 +9,16 @@ except ImportError:
     except ImportError:
         json = None
 
-def output_tabular(columns, rows, fp=None):
+def output_tabular(rows, fp=None):
     fp = fp or sys.stdout
-    fp.write("\t| ".join(columns))
+    fp.write("\t| ".join(rows.column_names))
     fp.write("\n")
     fp.write("-"*40+"\n")
     for row in rows:
-        fp.write("\t| ".join(row[k] if isinstance(row[k], basestring) else str(row[k]) for k in columns))
+        fp.write("\t| ".join(row[k] if isinstance(row[k], basestring) else str(row[k]) for k in rows.column_names))
         fp.write("\n")
 
-def output_json(columns, rows, fp=None):
+def output_json(rows, fp=None):
     fp = fp or sys.stdout
     fp.write('[')
     first = True
@@ -30,12 +30,12 @@ def output_json(columns, rows, fp=None):
         fp.write(json.dumps(row))
     fp.write(']')
 
-def output_csv(columns, rows, fp=None, **kwargs):
+def output_csv(rows, fp=None, **kwargs):
     fp = fp or sys.stdout
     writer = csv.writer(fp, **kwargs)
-    writer.writerow(columns)
+    writer.writerow(rows.column_names)
     for row in rows:
-        writer.writerow([row[k] for k in columns])
+        writer.writerow([row[k] for k in rows.column_names])
 
 output_formats = dict(
     tabular = output_tabular,

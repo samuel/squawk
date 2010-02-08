@@ -19,6 +19,8 @@ class AccessLogParser(object):
         else:
             self.fp = file
 
+        self.columns = [x[0] for x in sorted(log_re.groupindex.items(), key=lambda g:g[1])]
+
     def __iter__(self):
         for line in self.fp:
             m = log_re.match(line.strip())

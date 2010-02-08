@@ -13,12 +13,33 @@ def get_table_names(tokens):
         return [get_table_names(tokens.tables[0][0])]
     return [tokens.tables[0][0]]
 
-def combiner(files, parser_class):
-    for fname in files:
-        with (sys.stdin if fname == '-' else open(fname, 'rb')) as fp:
-            parser = parser_class(fp)
-            for row in parser:
-                yield row
+class Combiner(object):
+    def __init__(self, files, parser_class):
+        self.files = files
+        self.parser_class = parser_class
+        self.index = 0
+        self.next_file()
+
+    def next_file(self):
+        if self.index >= len(self.files):
+            raise StopIteration()
+        fname = self.files[self.index]
+        self.parser = self.parser_class(sys.stdin if fname == '-' else open(fname, "r"))
+        self.parser_iter = iter(self.parser)
+        self.columns = self.parser.columns
+        self.index += 1
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        while True:
+            try:
+                row = self.parser_iter.next()
+            except StopIteration:
+                self.next_file()
+            else:
+                return row
 
 def build_opt_parser():
     parser = OptionParser()
@@ -51,12 +72,12 @@ def main():
             sys.stderr.write("Can't figure out parser for input")
             sys.exit(1)
 
-    source = combiner(files, parser)
+    source = Combiner(files, parser)
     query = Query(sql)
 
     output = output_formats[options.format]
 
-    output(query.columns, query(source))
+    output(query(source))
 
 if __name__ == "__main__":
     main()
