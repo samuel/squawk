@@ -17,7 +17,7 @@ setup(
     author = 'Samuel Stauffer',
     author_email = 'samuel@descolada.com',
     url = 'http://github.com/samuel/squawk',
-    packages = ['squawk'],
+    packages = ['squawk', 'squawk/parsers'],
     license = "BSD",
     scripts = ['bin/squawk'],
     classifiers = [
