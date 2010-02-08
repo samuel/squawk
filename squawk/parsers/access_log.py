@@ -26,6 +26,9 @@ class AccessLogParser(object):
             m = log_re.match(line.strip())
             d = m.groupdict()
             d['remote_addr'] = d['remote_addr'].replace('"', '')
-            d['bytes'] = int(d['bytes'])
+            try:
+                d['bytes'] = int(d['bytes'])
+            except ValueError:
+                d['bytes'] = 0
             d['status'] = int(d['status'])
             yield d
