@@ -10,7 +10,7 @@ from squawk.sql import sql_parser
 
 def get_table_names(tokens):
     if not isinstance(tokens.tables[0][0], basestring):
-        return [get_table_names(tokens.tables[0][0])]
+        return get_table_names(tokens.tables[0][0])
     return [tokens.tables[0][0]]
 
 class Combiner(object):

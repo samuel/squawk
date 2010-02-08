@@ -96,7 +96,7 @@ class Selector(object):
                 yield row
 
 class Aggregator(object):
-    def __init__(self, source, _columns):
+    def __init__(self, source, columns):
         self.source = source
         self._columns = columns
 
@@ -110,7 +110,7 @@ class Aggregator(object):
 class Query(object):
     def __init__(self, sql):
         self.tokens = sql_parser.parseString(sql) if isinstance(sql, basestring) else sql
-        self.columns = None
+        self.column_classes = None
         self._table_subquery = None
         self._parts = self._generate_parts()
 
@@ -119,7 +119,7 @@ class Query(object):
         tokens = self.tokens
         parts = []
 
-        self.columns = [self._column_builder(c) for c in tokens.columns] if tokens.columns != '*' else None
+        self.column_classes = [self._column_builder(c) for c in tokens.columns] if tokens.columns != '*' else None
 
         if not isinstance(tokens.tables[0][0], basestring):
             self._table_subquery = Query(tokens.tables[0][0])
@@ -131,10 +131,10 @@ class Query(object):
             # Group by query
             parts.append(partial(GroupBy,
                     group_by = [c[0] for c in tokens.groupby],
-                    columns = self.columns))
-        elif self.columns and any(len(c.name)>1 for c in tokens.columns):
+                    columns = self.column_classes))
+        elif self.column_classes and any(len(c.name)>1 for c in tokens.columns):
             # Aggregate query
-            parts.append(partial(Aggregator, columns=self.columns))
+            parts.append(partial(Aggregator, columns=self.column_classes))
         else:
             # Basic select
             parts.append(partial(Selector, columns=[(c.name[0], c.alias) for c in tokens.columns] if tokens.columns != '*' else None))
@@ -185,5 +185,5 @@ class Query(object):
         executor = self._table_subquery(source) if self._table_subquery else source
         for p in self._parts:
             executor = p(source=executor)
-        executor.columns = [c().name for c in self.columns] if self.columns else source.columns
+        executor.columns = [c().name for c in self.column_classes] if self.column_classes else source.columns
         return executor
