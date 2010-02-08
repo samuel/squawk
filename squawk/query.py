@@ -17,10 +17,6 @@ OPERATOR_MAPPING = {
 }
 
 
-r = re.compile("^select\s+\*\s+from(.*)", re.I)
-def query_replace_all(sql, all_fields):
-    return r.sub(r"select %s from \1" % all_fields, sql)
-
 def sql_like(like_clause):
     return like_clause.replace("%",".*").replace("_",".")
 
@@ -168,11 +164,16 @@ class Query(object):
             else:
                 if isinstance(expr, basestring):
                     l.append(expr)
-                elif len(expr) == 3 and expr[1] == "like":
-                    l.append('re.match(%s, row["%s"])' % (sql_like(expr[2]), expr[0].lower()))
                 elif len(expr) == 3:
-                    op = OPERATOR_MAPPING[expr[1]]
-                    l.append('(row["%s"] %s %s)' % (expr[0].lower(), op, expr[2]))
+                    if expr[1] == "like":
+                        l.append('re.match(%s, row["%s"])' % (sql_like(expr[2]), expr[0].lower()))
+                    elif expr[1] in ("~", '~*', '!~', '!~*'):
+                        neg = "not " if expr[1][0] == '!' else ""
+                        flags = re.I if expr[1][-1] == '*' else 0
+                        l.append('%sre.match(r%s, row["%s"], %d)' % (neg, expr[2], expr[0].lower(), flags))
+                    else:
+                        op = OPERATOR_MAPPING[expr[1]]
+                        l.append('(row["%s"] %s %s)' % (expr[0].lower(), op, expr[2]))
                 elif expr[1] == "in":
                     l.append('(row["%s"] in %r)' % (expr[0].lower(), expr[3:-1]))
                 else:

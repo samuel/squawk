@@ -43,10 +43,11 @@ whereExpression = Forward()
 and_ = Keyword("and", caseless=True)
 or_ = Keyword("or", caseless=True)
 in_ = Keyword("in", caseless=True)
-like_ = Keyword("like", caseless=True)
+like = Keyword("like", caseless=True)
 
 E = CaselessLiteral("E")
 binop = oneOf("= != <> < > >= <= eq ne lt le gt ge", caseless=True)
+regexOp = oneOf("~ ~* !~ !~*")
 arithSign = Word("+-", exact=1)
 realNum = (Combine(
     Optional(arithSign) + (
@@ -64,7 +65,8 @@ columnRval = realNum | intNum | quotedString | columnName # need to add support 
 columnLikeval = quotedString
 whereCondition = Group(
         (columnName + binop + columnRval) |
-        (columnName + like_ + columnLikeval) |
+        (columnName + like + columnLikeval) |
+        (columnName + regexOp + quotedString) |
         (columnName + in_ + "(" + delimitedList(columnRval) + ")") |
         (columnName + in_ + "(" + selectStmt + ")") |
         ("(" + whereExpression + ")")
