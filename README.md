@@ -102,7 +102,7 @@ SQL based query through API::
         " ORDER BY n DESC"
         " LIMIT 10")
     source = AccessLogParser("access.log")
-    output_console(query, source)
+    output_console(query(source))
     
     # or
     
@@ -115,7 +115,7 @@ SQL based query through API::
         " ORDER BY n DESC"
         " LIMIT 10")
     source = AccessLogParser("access.log")
-    for row in query.execute(source):
+    for row in query(source):
         print row
 
 Code generated query::
