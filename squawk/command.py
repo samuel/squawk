@@ -56,7 +56,11 @@ def main():
     parser = build_opt_parser()
     (options, args) = parser.parse_args()
 
-    sql = ' '.join(args)
+    sql = ' '.join(args).strip()
+    if not sql:
+        print "An SQL expression is required"
+        return
+
     files = get_table_names(sql_parser.parseString(sql))
 
     parser_name = options.parser
