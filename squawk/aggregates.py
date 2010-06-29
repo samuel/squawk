@@ -1,5 +1,5 @@
 """
-An aggregate class is expected to except two values at
+An aggregate class is expected to accept two values at
 instantiation: 'column' and 'name', and the class
 must have two methods 'update(self, row)' and 'value(self)'.
 The 'update' method is called for each row, and the 'value'
