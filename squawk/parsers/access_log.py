@@ -20,12 +20,19 @@ class AccessLogParser(object):
             self.fp = file
 
         self.columns = [x[0] for x in sorted(log_re.groupindex.items(), key=lambda g:g[1])]
+        self.columns.remove("request")
+        self.columns += ["method", "path", "httpver"]
 
     def __iter__(self):
         for line in self.fp:
             m = log_re.match(line.strip())
             d = m.groupdict()
             d['remote_addr'] = d['remote_addr'].replace('"', '')
+            try:
+                request = d.pop('request')
+                method, path, httpver = request.split(' ')
+            except ValueError:
+                method, path, httpver = None, None, None
             try:
                 d['bytes'] = int(d['bytes'])
             except ValueError:
