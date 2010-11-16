@@ -11,7 +11,7 @@ must return the final result of the aggregation.
 
 class Aggregate(object):
     def __init__(self, column, name=None):
-        self.column = column.lower()
+        self.column = column and column.lower()
         self.name = (name or column).lower()
 
     def _to_number(self, val):

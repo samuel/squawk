@@ -122,10 +122,10 @@ Code generated query::
 
     source = AccessLogParser("access.log")
     filtered = Filter(source, lambda row:row['status'] == 200)
-    group_by = GroupBy(filtered, group_by="remote_addr", select=[
+    group_by = GroupBy(filtered, group_by=["remote_addr"], columns=[
         lambda:Column('remote_addr'),
         lambda:CountAggregate(None, 'count(1)')])
     order_by = OrderBy(group_by, 'count(1)', True)
-    limit = Limit(order_by, 10)
+    limit = LimitOffset(order_by, 10)
     for row in limit:
         print row
