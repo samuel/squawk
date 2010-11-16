@@ -30,9 +30,9 @@ class AccessLogParser(object):
             d['remote_addr'] = d['remote_addr'].replace('"', '')
             try:
                 request = d.pop('request')
-                method, path, httpver = request.split(' ')
+                d['method'], d['path'], d['httpver'] = request.split(' ')
             except ValueError:
-                method, path, httpver = None, None, None
+                d['method'], d['path'], d['httpver'] = None, None, None
             try:
                 d['bytes'] = int(d['bytes'])
             except ValueError:
