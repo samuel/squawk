@@ -21,7 +21,7 @@ setup(
     packages = ['squawk', 'squawk/parsers'],
     license = "BSD",
     scripts = ['bin/squawk'],
-    requires = ["pyparsing"],
+    install_requires = ["pyparsing"],
     classifiers = [
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
